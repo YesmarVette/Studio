@@ -9,17 +9,23 @@
       --bg-color: #111;
     }
 
-    body {
-      background: url('https://st4.depositphotos.com/3083671/29500/i/450/depositphotos_295007538-stock-illustration-twilight-sky-effect-light-pastel.jpg') no-repeat center center fixed;
-      background-size: cover;
-      background-color: var(--bg-color);
-      color: #f2f2f2;
-      font-family: monospace;
-      padding: 40px;
+    html, body {
       margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      font-family: monospace;
+      color: #f2f2f2;
+    }
+
+    body {
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
+      padding-top: 40px;
+      position: relative;
+      z-index: 1;
     }
 
     a {
@@ -37,6 +43,7 @@
       gap: 30px;
       width: 600px;
       margin-top: 40px;
+      z-index: 1;
     }
 
     .image-grid a img {
@@ -55,8 +62,9 @@
       position: fixed;
       top: 0;
       left: 0;
-      z-index: 9999;
-      pointer-events: none;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
     }
   </style>
 </head>
@@ -73,6 +81,68 @@
     <a href="page7.html"><img src="images/Capture2.PNG" alt="Image 5"></a>
   </div>
 
- 
+  <!-- Fluid Simulation as Background -->
+  <script src="https://cdn.jsdelivr.net/gh/PavelDoGreat/WebGL-Fluid-Simulation/fluid.min.js"></script>
+  <script>
+    const canvas = document.createElement('canvas');
+    document.body.prepend(canvas);
+
+    canvas.style.position = 'fixed';
+    canvas.style.top = 0;
+    canvas.style.left = 0;
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
+    canvas.style.zIndex = 0;
+    canvas.style.pointerEvents = 'none';
+
+    const config = {
+      SIM_RESOLUTION: 128,
+      DYE_RESOLUTION: 512,
+      DENSITY_DISSIPATION: 1.2,
+      VELOCITY_DISSIPATION: 0.98,
+      PRESSURE_ITERATIONS: 20,
+      CURL: 30,
+      SPLAT_RADIUS: 0.015,
+      SHADING: true,
+      COLORFUL: true,
+      COLOR_PALETTE: [
+        [255, 183, 197], // pastel pink
+        [186, 225, 255], // pastel blue
+        [197, 255, 206], // pastel green
+        [255, 223, 186], // pastel orange
+        [221, 160, 221], // pastel purple
+      ]
+    };
+
+    const getPastelColor = () => {
+      const palette = config.COLOR_PALETTE;
+      const color = palette[Math.floor(Math.random() * palette.length)];
+      return {
+        r: color[0] / 255,
+        g: color[1] / 255,
+        b: color[2] / 255
+      };
+    };
+
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const sim = new FluidSimulation(canvas, config);
+
+    window.addEventListener('mousemove', e => {
+      const dye = getPastelColor();
+      sim.splat(e.clientX, e.clientY, (Math.random() - 0.5) * 600, (Math.random() - 0.5) * 600, dye);
+    });
+
+    function animate() {
+      sim.update();
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
 </body>
 </html>
