@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/x-icon" href="images/Untitled.png" />
+  <title>Gallery</title>
+  <style>
+    :root {
+      --bg-color: #111;
+    }
+
+    body {
+      background: url('https://st4.depositphotos.com/3083671/29500/i/450/depositphotos_295007538-stock-illustration-twilight-sky-effect-light-pastel.jpg') no-repeat center center fixed;
+      background-size: cover;
+      background-color: var(--bg-color);
+      color: #f2f2f2;
+      font-family: monospace;
+      padding: 40px;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    a {
+      color: #f7d422;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+      width: 600px;
+      margin-top: 40px;
+    }
+
+    .image-grid a img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 10px;
+      transition: transform 0.3s ease;
+    }
+
+    .image-grid a img:hover {
+      transform: scale(1.05);
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gallery</h1>
+  <p>This is a gallery of Ideas, Music and Art</p>
+  <p><a href="index.html">← Back to home</a></p>
+
+  <div class="image-grid">
+    <a href="page3.html"><img src="images/Untitled.jpg" alt="Image 1"></a>
+    <a href="page4.html"><img src="images/Untitled (2).jpg" alt="Image 2"></a>
+    <a href="https://www.youtube.com/@Ramsey-v2w"><img src="images/Capture.PNG" alt="Image 3"></a>
+    <a href="page6.html"><img src="images/Untitled (1).jpg" alt="Image 4"></a>
+    <a href="page7.html"><img src="images/Capture2.PNG" alt="Image 5"></a>
+  </div>
+
+ 
+</body>
+</html>

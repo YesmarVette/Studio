@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/x-icon" href="images/Untitled.png" />
+  <title>Downloads</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #f2f2f2;
+      font-family: monospace;
+      padding: 40px;
+    }
+
+    a {
+      color: #f7d422;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .back-link {
+      align-self: flex-start;
+      margin-bottom: 20px;
+      color: #f7d422;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .section {
+      margin-bottom: 50px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .project-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      align-items: flex-start;
+    }
+
+    .project {
+      width: 200px;
+      text-align: center;
+    }
+
+    .project img {
+      width: 100%;
+      height: 150px;
+      background-color: #333;
+      object-fit: cover;
+      cursor: pointer;
+      border-radius: 8px;
+      border: 2px solid #555;
+    }
+
+    .project a {
+      display: block;
+      margin-top: 10px;
+      color: #f7d422;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .project a:hover {
+      text-decoration: underline;
+    }
+
+    #backgroundCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+
+  <a class="back-link" href="page2.html">← Back to Gallery</a>
+
+  <!-- Favourites Section -->
+  <div class="section">
+    <div class="section-title">Favourites</div>
+    <div class="project-grid">
+      <div class="project">
+        <img src="images/xu-beihong_double-happiness.jpg" alt="Trompe l'oeil" />
+        <a href="https://krakenfiles.com/view/3hTNKrjUX7/file.html" target="_blank">Trompe l'œil</a>
+      </div>
+      <div class="project">
+        <img src="images/B8A2F077-8BE0-4518-9E39-4EDA83F7F5AC_sk1.png" alt="OG Music Files" />
+        <a href="https://untitled.stream/library/project/o7fs5AbyYfnuxFZzA5UrT" target="_blank">Music OG Files</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaks Section -->
+  <div class="section">
+    <div class="section-title">Leaks</div>
+    <div class="project-grid">
+      <div class="project">
+        <img src="images/download.jpg" alt="Leak 1" />
+        <a href="https://mega.nz/folder/PVIGwCrS#PJ50Z5UtdPvYsZQPSFiXeQ" target="_blank">Opium Label Unreleased Albums</a>
+      </div>
+      <div class="project">
+        <img src="images/AW.jpeg" alt="Leak 2" />
+        <a href="https://mega.nz/folder/nMYx2KBY#Dlv7t2ec5sNqdJTK0VD1Aw" target="_blank">Lil Uzi Vert Unreleased Albums</a>
+      </div>
+      <div class="project">
+        <img src="images/WZRD.jpg" alt="Leak 3" />
+        <a href="https://mega.nz/folder/doRWEKbZ#3Mis7L0BPRhYQeif9pLNzw" target="_blank">Future Unreleased Albums</a>
+      </div>
+      <div class="project">
+        <img src="images/US.jpg" alt="Leak 4" />
+        <a href="https://mega.nz/folder/04xTSLYQ#h6AhK5uPFfMm2_xDOFq_Rw" target="_blank">Young Thug Unreleased Albums</a>
+      </div>
+      <div class="project">
+        <img src="images/s-l1200.jpg" alt="Leak 5" />
+        <a href="https://mega.nz/folder/N8p3VYRZ#qP4IO5qRNIETO3T90iH3GQ" target="_blank">Cactus Jack Label Unreleased albums</a>
+      </div>
+      <div class="project">
+        <img src="images/DOD3.jpg" alt="Leak 6" />
+        <a href="https://mega.nz/folder/g1RzSaJK#T-XEhTSzYTk9O4TRzJvLLg" target="_blank">Gunna Unreleased Albums</a>
+      </div>       
+    </div>
+  </div>
+  <!--line 129 -132 is what you want to copy to add a new one
+  <!-- Interactive background canvas -->
+  <canvas id="backgroundCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById('backgroundCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let particles = [];
+    const particleCount = 100;
+    const maxDistance = 120;
+
+    function resizeCanvas() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const mouse = { x: null, y: null };
+    window.addEventListener('mousemove', e => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = (Math.random() - 0.5) * 1.5;
+        this.vy = (Math.random() - 0.5) * 1.5;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0 || this.x > width) this.vx *= -1;
+        if (this.y < 0 || this.y > height) this.vy *= -1;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff99";
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+
+      for (let i = 0; i < particleCount; i++) {
+        const p1 = particles[i];
+        p1.update();
+        p1.draw();
+
+        for (let j = i + 1; j < particleCount; j++) {
+          const p2 = particles[j];
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < maxDistance) {
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${1 - dist / maxDistance})`;
+            ctx.stroke();
+          }
+        }
+
+        if (mouse.x && mouse.y) {
+          const dx = p1.x - mouse.x;
+          const dy = p1.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 100) {
+            p1.x += dx / dist;
+            p1.y += dy / dist;
+          }
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
