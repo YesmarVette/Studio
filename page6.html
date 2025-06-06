@@ -302,7 +302,7 @@
       const data = snapshot.val();
       if (data) {
         // Sort messages by timestamp ascending
-        const msgs = Object.values(data).sort((a,b) => a.timestamp - b.timestamp);
+        const msgs = Object.values(data).sort((a,b) => b.timestamp - a.timestamp);
         msgs.forEach(addMessageToDOM);
       }
     });
