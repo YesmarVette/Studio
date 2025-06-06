@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/x-icon" href="images/Untitled.png" />
+  <title>My Studio - Messages</title>
+  <style>
+    /* Background canvas setup */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px;
+      font-family: monospace;
+      background-color: #111;
+      color: rgba(247, 212, 34, 0.85);
+    }
+
+    a {
+      color: #f7d422;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    #back-link {
+      margin-bottom: 20px;
+      display: inline-block;
+      font-size: 1.1rem;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: rgba(20, 20, 20, 0.6);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(247, 212, 34, 0.4);
+      backdrop-filter: blur(8px);
+    }
+
+    #messages {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-height: 60vh;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .message-bubble {
+      background: rgba(247, 212, 34, 0.1);
+      border-radius: 15px;
+      padding: 15px 20px;
+      color: rgba(247, 212, 34, 0.9);
+      word-wrap: break-word;
+      box-shadow: 0 0 10px rgba(247, 212, 34, 0.3);
+      position: relative;
+    }
+
+    .message-bubble img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      margin-top: 10px;
+      display: block;
+    }
+
+    #postSection {
+      margin-top: 25px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #postSection textarea {
+      width: 100%;
+      height: 80px;
+      border-radius: 12px;
+      border: none;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 1rem;
+      background: rgba(247, 212, 34, 0.1);
+      color: rgba(247, 212, 34, 0.95);
+      resize: vertical;
+    }
+
+    #postSection input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(247, 212, 34, 0.1);
+      color: rgba(247, 212, 34, 0.95);
+      font-family: monospace;
+    }
+
+    #postSection button {
+      background: rgba(247, 212, 34, 0.9);
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      color: #111;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      align-self: flex-end;
+    }
+
+    #postSection button:hover {
+      background: #f7ea3b;
+    }
+
+    #loginSection {
+      max-width: 400px;
+      margin: 20px auto;
+      background: rgba(20, 20, 20, 0.7);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(247, 212, 34, 0.5);
+    }
+
+    #loginSection input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 1rem;
+      border-radius: 12px;
+      border: none;
+      background: rgba(247, 212, 34, 0.1);
+      color: rgba(247, 212, 34, 0.95);
+      margin-bottom: 10px;
+    }
+
+    #loginSection button {
+  padding: 10px 20px;
+  margin: 0 auto;
+  display: block;
+  background: rgba(247, 212, 34, 0.9);
+  border: none;
+  font-weight: bold;
+  color: #111;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+    #loginSection button:hover {
+      background: #f7ea3b;
+    }
+  </style>
+</head>
+<body>
+  <!-- Canvas background -->
+  <canvas id="bg-canvas"></canvas>
+
+  <a id="back-link" href="page2.html">← Back to Gallery</a>
+
+  <div class="container">
+    <h1>NEWS</h1>
+    <div id="messages"></div>
+
+    <div id="loginSection">
+      <input id="passwordInput" type="password" placeholder="Enter admin password to post" />
+      <button id="loginBtn">Unlock Posting</button>
+      <p id="loginMessage" style="color:#f7d422; margin-top:10px;"></p>
+    </div>
+
+    <div id="postSection">
+      <textarea id="messageInput" placeholder="Write your message here... You can add image URLs and they will show below." ></textarea>
+      <input id="imageInput" type="text" placeholder="Optional: Paste image URL here" />
+      <button id="postBtn">Post Message</button>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    // Your Firebase config from console:
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCj4n_nnxMX5S18kBr69a_kLFasMyg7JYA",
+      authDomain: "ramseysstudionewssystem.firebaseapp.com",
+      databaseURL: "https://ramseysstudionewssystem-default-rtdb.firebaseio.com",
+      projectId: "ramseysstudionewssystem",
+      storageBucket: "ramseysstudionewssystem.firebasestorage.app",
+      messagingSenderId: "31994294706",
+      appId: "1:31994294706:web:2cfbce23367679ee41b4ab",
+      measurementId: "G-7HZJKT9X4H"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const messagesRef = ref(db, 'messages');
+
+    // Password for posting — change here:
+    const ADMIN_PASSWORD = "HolyUnemployed";
+
+    // Elements
+    const loginSection = document.getElementById('loginSection');
+    const passwordInput = document.getElementById('passwordInput');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginMessage = document.getElementById('loginMessage');
+
+    const postSection = document.getElementById('postSection');
+    const messageInput = document.getElementById('messageInput');
+    const imageInput = document.getElementById('imageInput');
+    const postBtn = document.getElementById('postBtn');
+
+    // On login button click
+    loginBtn.addEventListener('click', () => {
+      if (passwordInput.value === ADMIN_PASSWORD) {
+        loginSection.style.display = 'none';
+        postSection.style.display = 'flex';
+        loginMessage.textContent = '';
+      } else {
+        loginMessage.textContent = 'Incorrect password. Try again.';
+      }
+    });
+
+    // Load and show messages
+    function addMessageToDOM(msg) {
+      const div = document.createElement('div');
+      div.className = 'message-bubble';
+
+      // text content, with new lines to <br>
+      const textHTML = msg.text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\n/g, "<br>");
+
+      div.innerHTML = textHTML;
+
+      // If image URL exists, append image preview
+      if (msg.image && msg.image.trim() !== "") {
+        const img = document.createElement('img');
+        img.src = msg.image;
+        img.alt = "Attached Image";
+        img.onerror = () => { img.style.display = 'none'; } // hide if broken link
+        div.appendChild(img);
+      }
+
+      // Add timestamp
+      if(msg.timestamp){
+        const date = new Date(msg.timestamp);
+        const timeDiv = document.createElement('div');
+        timeDiv.style.fontSize = '0.75rem';
+        timeDiv.style.marginTop = '8px';
+        timeDiv.style.opacity = '0.6';
+        timeDiv.textContent = date.toLocaleString();
+        div.appendChild(timeDiv);
+      }
+
+      document.getElementById('messages').appendChild(div);
+    }
+
+    onValue(messagesRef, (snapshot) => {
+      const messagesDiv = document.getElementById('messages');
+      messagesDiv.innerHTML = '';
+      const data = snapshot.val();
+      if (data) {
+        // Sort messages by timestamp ascending
+        const msgs = Object.values(data).sort((a,b) => a.timestamp - b.timestamp);
+        msgs.forEach(addMessageToDOM);
+      }
+    });
+
+    // Post new message
+    postBtn.addEventListener('click', () => {
+      const text = messageInput.value.trim();
+      const image = imageInput.value.trim();
+
+      if (!text && !image) {
+        alert('Please enter a message or an image URL.');
+        return;
+      }
+
+      const newMsg = {
+        text,
+        image,
+        timestamp: Date.now()
+      };
+
+      push(messagesRef, newMsg).then(() => {
+        messageInput.value = '';
+        imageInput.value = '';
+      }).catch(err => {
+        alert('Error posting message: ' + err.message);
+      });
+    });
+
+
+    // Background animation same as you wanted:
+
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let particles = [];
+    const particleCount = 100;
+    const maxDistance = 120;
+
+    function resizeCanvas() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const mouse = { x: null, y: null };
+
+    window.addEventListener('mousemove', e => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = (Math.random() - 0.5) * 1.5;
+        this.vy = (Math.random() - 0.5) * 1.5;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > width) this.vx *= -1;
+        if (this.y < 0 || this.y > height) this.vy *= -1;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = "#f7d422";
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+
+      for (let i = 0; i < particleCount; i++) {
+        const p1 = particles[i];
+        p1.update();
+        p1.draw();
+
+        for (let j = i + 1; j < particleCount; j++) {
+          const p2 = particles[j];
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < maxDistance) {
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${1 - dist / maxDistance})`;
+            ctx.stroke();
+          }
+        }
+
+        if (mouse.x !== null && mouse.y !== null) {
+          const dx = p1.x - mouse.x;
+          const dy = p1.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 100) {
+            p1.x += dx / dist;
+            p1.y += dy / dist;
+          }
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
