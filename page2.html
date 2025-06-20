@@ -6,11 +6,11 @@
   <title>Gallery</title>
   <style>
     :root {
-      --frost: rgba(255, 255, 255, 0.05);
-      --bg: #1e1e1e;
-      --surface: #2a2a2a;
+      --frost: rgba(255, 255, 255, 0.06);
+      --bg: #121a25;
       --highlight: #a8d8f0;
       --text: #f0f0f0;
+      --ice-border: rgba(168, 216, 240, 0.25);
     }
 
     html, body {
@@ -18,9 +18,17 @@
       padding: 0;
       height: 100%;
       font-family: 'Segoe UI', sans-serif;
-      background-color: var(--bg);
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      background-size: 400% 400%;
+      animation: gradientBG 20s ease infinite;
       color: var(--text);
       display: flex;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     /* Sidebar */
@@ -36,7 +44,7 @@
       gap: 30px;
       position: fixed;
       height: 100vh;
-      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      border-right: 1px solid var(--ice-border);
       z-index: 2;
     }
 
@@ -53,7 +61,7 @@
       color: var(--text);
       font-size: 18px;
       transition: 0.2s ease;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--ice-border);
     }
 
     .sidebar a:hover {
@@ -62,7 +70,6 @@
       color: var(--highlight);
     }
 
-    /* Main gallery */
     .main {
       margin-left: 140px;
       padding: 40px;
@@ -80,36 +87,110 @@
       font-weight: 500;
     }
 
-    .image-grid {
+    .form-box {
+      background: var(--frost);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--ice-border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .poster-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .poster-form input {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--ice-border);
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .poster-form input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .poster-form button {
+      padding: 12px 20px;
+      border: none;
+      background: rgba(168, 216, 240, 0.2);
+      color: white;
+      font-weight: bold;
+      border-radius: 12px;
+      border: 1px solid rgba(168, 216, 240, 0.4);
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .poster-form button:hover {
+      background: rgba(168, 216, 240, 0.4);
+    }
+
+    .posterboard {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 30px;
-      margin-top: 40px;
     }
 
-    .image-grid a img {
+    .post-card {
+      background: var(--frost);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--ice-border);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transition: 0.3s ease;
+    }
+
+    .post-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 12px 32px rgba(168, 216, 240, 0.3);
+    }
+
+    .post-card img {
       width: 100%;
-      height: 300px;
+      height: 200px;
       object-fit: cover;
       border-radius: 12px;
-      transition: transform 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-      background-color: var(--surface);
+      margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.05);
     }
 
-    .image-grid a img:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 16px rgba(168, 216, 240, 0.3);
+    .post-card h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      color: var(--highlight);
     }
 
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      pointer-events: none;
+    .post-card a {
+      color: #e0f7ff;
+      word-break: break-word;
+      text-decoration: underline;
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .poster-form {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 70px;
+      }
+
+      .main {
+        margin-left: 80px;
+        padding: 20px;
+      }
     }
   </style>
 </head>
@@ -127,87 +208,67 @@
   <!-- Main Content -->
   <div class="main">
     <h1>Gallery</h1>
-    <p>Music, Art, YouTube, News, Chat</p>
+    <p>Post music, art, videos, links and more</p>
 
-    <div class="image-grid" id="galleryGrid">
-      <!-- This will be filled with JS below -->
+    <div class="form-box">
+      <div class="poster-form">
+        <input type="text" id="titleInput" placeholder="Title">
+        <input type="text" id="imageInput" placeholder="Image URL">
+        <input type="text" id="linkInput" placeholder="Link (e.g. https://...)">
+        <button onclick="submitPost()">Post</button>
+      </div>
+    </div>
+
+    <div class="posterboard" id="posterboard">
+      <!-- Firebase posts appear here -->
     </div>
   </div>
 
-  <!-- Fluid Background -->
-  <script src="https://cdn.jsdelivr.net/gh/PavelDoGreat/WebGL-Fluid-Simulation/fluid.min.js"></script>
+  <!-- Firebase + DB -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-database-compat.js"></script>
   <script>
-    const canvas = document.createElement('canvas');
-    document.body.prepend(canvas);
-
-    const config = {
-      SIM_RESOLUTION: 128,
-      DYE_RESOLUTION: 512,
-      DENSITY_DISSIPATION: 1.1,
-      VELOCITY_DISSIPATION: 0.98,
-      PRESSURE_ITERATIONS: 20,
-      CURL: 30,
-      SPLAT_RADIUS: 0.015,
-      SHADING: true,
-      COLORFUL: true,
-      COLOR_PALETTE: [
-        [186, 225, 255],
-        [197, 255, 206],
-        [221, 160, 221],
-        [255, 223, 186],
-        [255, 183, 197]
-      ]
+    const firebaseConfig = {
+      apiKey: "AIzaSyARnUbXOe1iReI2ml4_f2qvnv_6wn6W-N0",
+      authDomain: "posterboar.firebaseapp.com",
+      databaseURL: "https://posterboar-default-rtdb.firebaseio.com",
+      projectId: "posterboar",
+      storageBucket: "posterboar.firebasestorage.app",
+      messagingSenderId: "646027769829",
+      appId: "1:646027769829:web:f85522789d22c0720d610c",
+      measurementId: "G-53QS1E4CMD"
     };
 
-    const getPastelColor = () => {
-      const palette = config.COLOR_PALETTE;
-      const color = palette[Math.floor(Math.random() * palette.length)];
-      return { r: color[0] / 255, g: color[1] / 255, b: color[2] / 255 };
-    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    function submitPost() {
+      const title = document.getElementById('titleInput').value.trim();
+      const image = document.getElementById('imageInput').value.trim();
+      const link = document.getElementById('linkInput').value.trim();
+      if (!title || !image || !link) return alert("Fill in all fields!");
 
-    const sim = new FluidSimulation(canvas, config);
+      db.ref("posts").push({ title, image, link });
 
-    window.addEventListener('mousemove', e => {
-      const dye = getPastelColor();
-      sim.splat(e.clientX, e.clientY, (Math.random() - 0.5) * 600, (Math.random() - 0.5) * 600, dye);
-    });
-
-    function animate() {
-      sim.update();
-      requestAnimationFrame(animate);
+      document.getElementById('titleInput').value = '';
+      document.getElementById('imageInput').value = '';
+      document.getElementById('linkInput').value = '';
     }
-    animate();
-  </script>
 
-  <!-- Modular Image Links -->
-  <script>
-    const galleryItems = [
-      { href: "page3.html", src: "images/Untitled.jpg", alt: "Downloads" },
-      { href: "page4.html", src: "images/Untitled (2).jpg", alt: "Art" },
-      { href: "https://www.youtube.com/@00GOON-00", src: "images/Capture.PNG", alt: "YouTube Channel" },
-      { href: "page6.html", src: "images/Untitled (1).jpg", alt: "News" },
-      { href: "page7.html", src: "images/Capture2.PNG", alt: "Chat" }
-    ];
+    function createCard(post) {
+      return `
+        <div class="post-card">
+          <img src="${post.image}" alt="Post image">
+          <h3>${post.title}</h3>
+          <a href="${post.link}" target="_blank">${post.link}</a>
+        </div>
+      `;
+    }
 
-    const galleryGrid = document.getElementById("galleryGrid");
-    galleryItems.forEach(item => {
-      const link = document.createElement("a");
-      link.href = item.href;
-      link.target = item.href.startsWith("http") ? "_blank" : "_self";
-
-      const img = document.createElement("img");
-      img.src = item.src;
-      img.alt = item.alt;
-
-      link.appendChild(img);
-      galleryGrid.appendChild(link);
+    const board = document.getElementById("posterboard");
+    db.ref("posts").on("child_added", snapshot => {
+      const post = snapshot.val();
+      board.innerHTML += createCard(post);
     });
   </script>
 </body>
