@@ -1,61 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <link rel="icon" type="image/x-icon" href="images/Untitled.png" />
   <title>Gallery</title>
   <style>
     :root {
-      --bg-color: #f7d422;
+      --frost: rgba(255, 255, 255, 0.05);
+      --bg: #1e1e1e;
+      --surface: #2a2a2a;
+      --highlight: #a8d8f0;
+      --text: #f0f0f0;
     }
 
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
       height: 100%;
-      font-family: monospace;
-      color: #f7d422;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
     }
 
-    body {
+    /* Sidebar */
+    .sidebar {
+      width: 120px;
+      background: var(--frost);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
       padding-top: 40px;
-      position: relative;
+      gap: 30px;
+      position: fixed;
+      height: 100vh;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      z-index: 2;
+    }
+
+    .sidebar a {
+      display: block;
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      background-color: rgba(255, 255, 255, 0.03);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 18px;
+      transition: 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: scale(1.1);
+      color: var(--highlight);
+    }
+
+    /* Main gallery */
+    .main {
+      margin-left: 140px;
+      padding: 40px;
+      width: 100%;
       z-index: 1;
     }
 
-    a {
-      color: #f7d422;
-      text-decoration: none;
+    h1 {
+      margin-top: 0;
+      font-size: 36px;
     }
 
-    a:hover {
-      text-decoration: underline;
+    p {
+      color: var(--highlight);
+      font-weight: 500;
     }
 
     .image-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 30px;
-      width: 600px;
       margin-top: 40px;
-      z-index: 1;
     }
 
     .image-grid a img {
       width: 100%;
       height: 300px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 12px;
       transition: transform 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      background-color: var(--surface);
     }
 
     .image-grid a img:hover {
       transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba(168, 216, 240, 0.3);
     }
 
     canvas {
@@ -65,40 +109,41 @@
       width: 100vw;
       height: 100vh;
       z-index: 0;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <h1>Gallery</h1>
-  <p>Music, Art, Youtube, News, Chat</p>
-  <p><a href="index.html">← Back to home</a></p>
-
-  <div class="image-grid">
-    <a href="page3.html"><img src="images/Untitled.jpg" alt="Image 1"></a>
-    <a href="page4.html"><img src="images/Untitled (2).jpg" alt="Image 2"></a>
-    <a href="https://www.youtube.com/@00GOON-00"><img src="images/Capture.PNG" alt="Image 3"></a>
-    <a href="page6.html"><img src="images/Untitled (1).jpg" alt="Image 4"></a>
-    <a href="page7.html"><img src="images/Capture2.PNG" alt="Image 5"></a>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <a href="index.html" title="Home">🏠</a>
+    <a href="page3.html" title="Downloads">⬇️</a>
+    <a href="page4.html" title="Art">🎨</a>
+    <a href="https://www.youtube.com/@00GOON-00" title="YouTube">▶️</a>
+    <a href="page6.html" title="News">📰</a>
+    <a href="page7.html" title="Chat">💬</a>
   </div>
 
-  <!-- Fluid Simulation as Background -->
+  <!-- Main Content -->
+  <div class="main">
+    <h1>Gallery</h1>
+    <p>Music, Art, YouTube, News, Chat</p>
+
+    <div class="image-grid" id="galleryGrid">
+      <!-- This will be filled with JS below -->
+    </div>
+  </div>
+
+  <!-- Fluid Background -->
   <script src="https://cdn.jsdelivr.net/gh/PavelDoGreat/WebGL-Fluid-Simulation/fluid.min.js"></script>
   <script>
     const canvas = document.createElement('canvas');
     document.body.prepend(canvas);
 
-    canvas.style.position = 'fixed';
-    canvas.style.top = 0;
-    canvas.style.left = 0;
-    canvas.style.width = '100vw';
-    canvas.style.height = '100vh';
-    canvas.style.zIndex = 0;
-    canvas.style.pointerEvents = 'none';
-
     const config = {
       SIM_RESOLUTION: 128,
       DYE_RESOLUTION: 512,
-      DENSITY_DISSIPATION: 1.2,
+      DENSITY_DISSIPATION: 1.1,
       VELOCITY_DISSIPATION: 0.98,
       PRESSURE_ITERATIONS: 20,
       CURL: 30,
@@ -106,22 +151,18 @@
       SHADING: true,
       COLORFUL: true,
       COLOR_PALETTE: [
-        [255, 183, 197], // pastel pink
-        [186, 225, 255], // pastel blue
-        [197, 255, 206], // pastel green
-        [255, 223, 186], // pastel orange
-        [221, 160, 221], // pastel purple
+        [186, 225, 255],
+        [197, 255, 206],
+        [221, 160, 221],
+        [255, 223, 186],
+        [255, 183, 197]
       ]
     };
 
     const getPastelColor = () => {
       const palette = config.COLOR_PALETTE;
       const color = palette[Math.floor(Math.random() * palette.length)];
-      return {
-        r: color[0] / 255,
-        g: color[1] / 255,
-        b: color[2] / 255
-      };
+      return { r: color[0] / 255, g: color[1] / 255, b: color[2] / 255 };
     };
 
     const resizeCanvas = () => {
@@ -143,6 +184,31 @@
       requestAnimationFrame(animate);
     }
     animate();
+  </script>
+
+  <!-- Modular Image Links -->
+  <script>
+    const galleryItems = [
+      { href: "page3.html", src: "images/Untitled.jpg", alt: "Downloads" },
+      { href: "page4.html", src: "images/Untitled (2).jpg", alt: "Art" },
+      { href: "https://www.youtube.com/@00GOON-00", src: "images/Capture.PNG", alt: "YouTube Channel" },
+      { href: "page6.html", src: "images/Untitled (1).jpg", alt: "News" },
+      { href: "page7.html", src: "images/Capture2.PNG", alt: "Chat" }
+    ];
+
+    const galleryGrid = document.getElementById("galleryGrid");
+    galleryItems.forEach(item => {
+      const link = document.createElement("a");
+      link.href = item.href;
+      link.target = item.href.startsWith("http") ? "_blank" : "_self";
+
+      const img = document.createElement("img");
+      img.src = item.src;
+      img.alt = item.alt;
+
+      link.appendChild(img);
+      galleryGrid.appendChild(link);
+    });
   </script>
 </body>
 </html>
